@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'E-Commerce Demo',
+  title: 'UMKM Warung Ajib',
       theme: ThemeData(primarySwatch: Colors.blue),
       initialRoute: SplashScreen.routeName,
       routes: {

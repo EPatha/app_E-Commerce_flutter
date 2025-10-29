@@ -50,4 +50,11 @@ final List<Product> demoProducts = [
     description: 'Steak medium rare dengan saus spesial.',
     price: 75000,
   ),
+  Product(
+    id: '6',
+    name: 'Lumpia',
+    image: 'assets/images/Lumpia.jpg',
+    description: 'Lumpia renyah dengan isi sayur dan daging, cocok untuk cemilan.',
+    price: 12000,
+  ),
 ];

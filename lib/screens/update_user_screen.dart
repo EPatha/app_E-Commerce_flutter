@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'login_screen.dart';
 
 class UpdateUserScreen extends StatefulWidget {
   static const routeName = '/update_user';
@@ -41,6 +42,13 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
     Navigator.of(context).pop();
   }
 
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false);
+    // Optionally keep username; navigate to Login and clear stack
+    Navigator.of(context).pushNamedAndRemoveUntil(LoginScreen.routeName, (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +66,8 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
                 ElevatedButton(onPressed: _update, child: const Text('Update')),
                 const SizedBox(width: 8),
                 OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+                const SizedBox(width: 8),
+                TextButton(onPressed: _logout, child: const Text('Logout', style: TextStyle(color: Colors.red))),
               ],
             )
           ],
