@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final prefs = await SharedPreferences.getInstance();
     final hasUser = prefs.containsKey('username') && prefs.containsKey('password');
     if (hasUser) {
-      Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+      Navigator.of(context).pushReplacementNamed(DashboardScreen.routeName);
     } else {
       Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
     }
@@ -35,10 +35,25 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            FlutterLogo(size: 96),
-            SizedBox(height: 12),
-            Text('E-Commerce Demo', style: TextStyle(fontSize: 20)),
+          children: [
+            // Try to show an existing image as logo; fallback to FlutterLogo
+            SizedBox(
+              width: 120,
+              height: 120,
+              child: Image.asset(
+                'assets/images/Estehajib-Jumbo.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (c, e, s) => const FlutterLogo(size: 120),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text('Selamat Datang', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            const Text('di', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 4),
+            const Text('Warung Ephesians', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 12),
+            const Text('5 Pemrograman Perangkat Bergerak | Ajib Susanto', style: TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
       ),
