@@ -24,7 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _hasAccount = prefs.containsKey('username') && prefs.containsKey('password');
+      // We only persist username (account marker). Password is not stored.
+      _hasAccount = prefs.containsKey('username');
       if (_hasAccount) {
         _userController.text = prefs.getString('username') ?? '';
       }
@@ -39,26 +40,28 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username and password required')));
       return;
     }
+    // For this assignment we only persist username as account marker.
     await prefs.setString('username', u);
-    await prefs.setString('password', p);
     setState(() => _hasAccount = true);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account created')));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account created (password not stored)')));
   }
 
   Future<void> _login() async {
     final prefs = await SharedPreferences.getInstance();
     final storedUser = prefs.getString('username');
-    final storedPass = prefs.getString('password');
     final u = _userController.text.trim();
-    final p = _passController.text.trim();
-    if (storedUser == null || storedPass == null) {
+    // We do not store password; for this demo we accept login when username matches stored username.
+    if (storedUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No account found. Please create one.')));
       return;
     }
-    if (u == storedUser && p == storedPass) {
+    if (u == storedUser) {
+      // Mark logged in
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('username', u);
       Navigator.of(context).pushReplacementNamed(DashboardScreen.routeName);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid credentials')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid username')));
     }
   }
 

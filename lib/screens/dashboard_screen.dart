@@ -5,6 +5,7 @@ import '../models/product.dart';
 import 'product_detail_screen.dart';
 import 'payment_screen.dart';
 import 'update_user_screen.dart';
+import 'login_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -71,6 +72,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'update':
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateUserScreen()));
         break;
+      case 'logout':
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', false);
+        Navigator.of(context).pushNamedAndRemoveUntil(LoginScreen.routeName, (route) => false);
+        break;
     }
   }
 
@@ -87,6 +93,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               PopupMenuItem(value: 'sms', child: Text('SMS Center')),
               PopupMenuItem(value: 'maps', child: Text('Lokasi/Maps')),
               PopupMenuItem(value: 'update', child: Text('Update User & Password')),
+              PopupMenuDivider(),
+              PopupMenuItem(value: 'logout', child: Text('Logout')),
             ],
           )
         ],

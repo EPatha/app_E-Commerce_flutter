@@ -22,21 +22,21 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
+      // Only username is persisted
       _userController.text = prefs.getString('username') ?? '';
-      _passController.text = prefs.getString('password') ?? '';
     });
   }
 
   Future<void> _update() async {
     final u = _userController.text.trim();
-    final p = _passController.text.trim();
-    if (u.isEmpty || p.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User dan password tidak boleh kosong')));
+    if (u.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User tidak boleh kosong')));
       return;
     }
     final prefs = await SharedPreferences.getInstance();
+    // Persist only username and keep user logged in
     await prefs.setString('username', u);
-    await prefs.setString('password', p);
+    await prefs.setBool('isLoggedIn', true);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Update berhasil')));
     Navigator.of(context).pop();
   }

@@ -21,8 +21,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkAuth() async {
     final prefs = await SharedPreferences.getInstance();
-    final hasUser = prefs.containsKey('username') && prefs.containsKey('password');
-    if (hasUser) {
+    // Check isLoggedIn flag (preferred) and fallback to username existence
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final hasUser = prefs.containsKey('username');
+    if (isLoggedIn || hasUser) {
       Navigator.of(context).pushReplacementNamed(DashboardScreen.routeName);
     } else {
       Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
