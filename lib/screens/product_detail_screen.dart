@@ -29,7 +29,13 @@ class ProductDetailScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(product.description),
                   const SizedBox(height: 24),
-                  ElevatedButton(onPressed: () {}, child: const Text('Add to Cart')),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Return the product to the previous screen to indicate it should be added
+                      Navigator.of(context).pop(product);
+                    },
+                    child: const Text('Add to Cart'),
+                  ),
                 ],
               ),
             )

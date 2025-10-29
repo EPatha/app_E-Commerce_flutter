@@ -4,6 +4,8 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/product_detail_screen.dart';
+import 'screens/payment_screen.dart';
+import 'screens/update_user_screen.dart';
 import 'models/product.dart';
 
 void main() {
@@ -23,6 +25,8 @@ class MyApp extends StatelessWidget {
         SplashScreen.routeName: (_) => const SplashScreen(),
         LoginScreen.routeName: (_) => const LoginScreen(),
         DashboardScreen.routeName: (_) => const DashboardScreen(),
+        PaymentScreen.routeName: (_) => const PaymentScreen(),
+        UpdateUserScreen.routeName: (_) => const UpdateUserScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == ProductDetailScreen.routeName) {
