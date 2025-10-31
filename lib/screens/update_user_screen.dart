@@ -47,8 +47,11 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
+    // Remove stored credentials so Login shows the create-account option
+    await prefs.remove('username');
+    await prefs.remove('password');
     await prefs.setBool('isLoggedIn', false);
-    // Optionally keep username; navigate to Login and clear stack
+    // Navigate to Login and clear navigation stack
     Navigator.of(context).pushNamedAndRemoveUntil(LoginScreen.routeName, (route) => false);
   }
 

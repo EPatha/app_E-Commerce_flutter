@@ -80,6 +80,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Products'),
         actions: [
+          // Quick access button to update username/password
+          IconButton(
+            icon: const Icon(Icons.person),
+            tooltip: 'Update User & Password',
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateUserScreen())),
+          ),
           PopupMenuButton<String>(
             onSelected: _onMenuSelected,
             itemBuilder: (ctx) => const [
