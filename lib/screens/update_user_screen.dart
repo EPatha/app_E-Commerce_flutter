@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
+import 'dart:convert';
 
 class UpdateUserScreen extends StatefulWidget {
   static const routeName = '/update_user';
@@ -22,11 +23,30 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      // Load username and password if present
-      _userController.text = prefs.getString('username') ?? '';
-      _passController.text = prefs.getString('password') ?? '';
-    });
+    final accountsJson = prefs.getString('accounts');
+    final current = prefs.getString('currentUser') ?? prefs.getString('username');
+    if (accountsJson != null && current != null) {
+      try {
+        final Map<String, dynamic> map = json.decode(accountsJson);
+        if (map.containsKey(current)) {
+          setState(() {
+            _userController.text = current;
+            _passController.text = map[current].toString();
+          });
+        }
+      } catch (_) {
+        // fallback to single stored username/password
+        setState(() {
+          _userController.text = prefs.getString('username') ?? '';
+          _passController.text = prefs.getString('password') ?? '';
+        });
+      }
+    } else {
+      setState(() {
+        _userController.text = prefs.getString('username') ?? '';
+        _passController.text = prefs.getString('password') ?? '';
+      });
+    }
   }
 
   Future<void> _update() async {
@@ -37,9 +57,22 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
       return;
     }
     final prefs = await SharedPreferences.getInstance();
-    // Persist username and password and keep user logged in
-    await prefs.setString('username', u);
-    await prefs.setString('password', p);
+    final accountsJson = prefs.getString('accounts');
+    Map<String, String> accounts = {};
+    if (accountsJson != null) {
+      try {
+        final parsed = json.decode(accountsJson) as Map<String, dynamic>;
+        parsed.forEach((k, v) => accounts[k] = v.toString());
+      } catch (_) {}
+    }
+    final current = prefs.getString('currentUser') ?? prefs.getString('username');
+    // If username changed and previous exists, remove old key
+    if (current != null && current != u && accounts.containsKey(current)) {
+      accounts.remove(current);
+    }
+    accounts[u] = p;
+    await prefs.setString('accounts', json.encode(accounts));
+    await prefs.setString('currentUser', u);
     await prefs.setBool('isLoggedIn', true);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Update berhasil')));
     Navigator.of(context).pop();
@@ -47,11 +80,9 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
 
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    // Remove stored credentials so Login shows the create-account option
-    await prefs.remove('username');
-    await prefs.remove('password');
+    // Only clear the logged-in flag and currentUser; keep accounts
     await prefs.setBool('isLoggedIn', false);
-    // Navigate to Login and clear navigation stack
+    await prefs.remove('currentUser');
     Navigator.of(context).pushNamedAndRemoveUntil(LoginScreen.routeName, (route) => false);
   }
 
