@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class PaymentScreen extends StatefulWidget {
   static const routeName = '/payment';
   final double total;
-  const PaymentScreen({Key? key, this.total = 0.0}) : super(key: key);
+  final VoidCallback? onReset;
+  const PaymentScreen({Key? key, this.total = 0.0, this.onReset}) : super(key: key);
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -61,6 +62,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ElevatedButton(onPressed: _processPayment, child: const Text('Bayar')),
                 const SizedBox(width: 8),
                 OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Kembali')),
+                const SizedBox(width: 8),
+                if (widget.onReset != null)
+                  TextButton(
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text('Reset Pesanan'),
+                          content: const Text('Yakin ingin mereset total/keranjang?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Batal')),
+                            TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Reset')),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        widget.onReset!();
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: const Text('Reset', style: TextStyle(color: Colors.red)),
+                  ),
               ],
             ),
             const SizedBox(height: 16),

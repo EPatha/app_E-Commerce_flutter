@@ -93,6 +93,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               }
             },
           ),
+          // Quick access button to call the seller (Call Center)
+          IconButton(
+            icon: const Icon(Icons.call),
+            tooltip: 'Call Center',
+            onPressed: () => _openDialer('+6282114488418'),
+          ),
           // Quick access button to open WhatsApp chat
           IconButton(
             icon: const Icon(Icons.chat, color: Colors.green),
@@ -176,8 +182,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       bottomNavigationBar: GestureDetector(
         onTap: () {
-          // open payment form
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => PaymentScreen(total: _total)));
+          // open payment form and pass a reset callback to clear cart
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => PaymentScreen(
+                total: _total,
+                onReset: () {
+                  setState(() {
+                    _cart.clear();
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Keranjang telah direset')));
+                },
+              )));
         },
         child: Container(
           color: Colors.blueGrey[50],
