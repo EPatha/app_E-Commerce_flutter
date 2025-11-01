@@ -80,6 +80,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Products'),
         actions: [
+          // Quick access button to open Maps link
+          IconButton(
+            icon: const Icon(Icons.map),
+            tooltip: 'Open Maps',
+            onPressed: () async {
+              final uri = Uri.parse('https://maps.app.goo.gl/kY9gDUAED5oakMrB8');
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
+              }
+            },
+          ),
           // Quick access button to update username/password
           IconButton(
             icon: const Icon(Icons.person),
