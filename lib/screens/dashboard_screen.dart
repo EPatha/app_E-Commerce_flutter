@@ -93,6 +93,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
               }
             },
           ),
+          // Quick access button to open WhatsApp chat
+          IconButton(
+            icon: const Icon(Icons.chat, color: Colors.green),
+            tooltip: 'Chat via WhatsApp',
+            onPressed: () async {
+              // Use wa.me link with country code (no plus signs or dashes)
+              final uri = Uri.parse('https://wa.me/6282114488418');
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open WhatsApp')));
+              }
+            },
+          ),
           // Quick access button to update username/password
           IconButton(
             icon: const Icon(Icons.person),
