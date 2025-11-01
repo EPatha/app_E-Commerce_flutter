@@ -93,11 +93,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               }
             },
           ),
-          // Quick access button to call the seller (Call Center)
+          // Quick access button to open WhatsApp chat/call to seller
           IconButton(
             icon: const Icon(Icons.call),
-            tooltip: 'Call Center',
-            onPressed: () => _openDialer('+6282114488418'),
+            tooltip: 'Call Center (WhatsApp)',
+            onPressed: () async {
+              final uri = Uri.parse('https://wa.me/6282114488418');
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open WhatsApp')));
+              }
+            },
           ),
           // Quick access button to open WhatsApp chat
           IconButton(
