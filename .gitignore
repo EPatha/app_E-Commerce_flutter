@@ -29,4 +29,13 @@ ios/Podfile.lock
 
 # Misc
 *.log
-pubspec.lock
+/.flutter-plugins
+/.flutter-plugins-dependencies
+.flutter-plugins
+
+# Flutter tool files
+.packages
+.flutter-plugins
+
+# Optional: if you use FVM
+.fvm/
