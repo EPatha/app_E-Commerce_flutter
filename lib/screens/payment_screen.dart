@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import '../models/product.dart';
 
 class PaymentScreen extends StatefulWidget {
   static const routeName = '/payment';
-  final double total;
+  final Map<String, int> cart;
   final VoidCallback? onReset;
-  const PaymentScreen({Key? key, this.total = 0.0, this.onReset}) : super(key: key);
+  const PaymentScreen({Key? key, this.cart = const {}, this.onReset}) : super(key: key);
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -14,6 +15,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final _payController = TextEditingController();
   double? _change;
 
+  double get _totalFromCart {
+    double t = 0.0;
+    widget.cart.forEach((id, qty) {
+      final p = demoProducts.firstWhere((prod) => prod.id == id, orElse: () => Product(id: id, name: 'Unknown', image: '', description: '', price: 0.0));
+      t += p.price * qty;
+    });
+    return t;
+  }
+
   void _processPayment() {
     final text = _payController.text.replaceAll(',', '').trim();
     final paid = double.tryParse(text);
@@ -21,18 +31,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Masukkan jumlah pembayaran yang valid')));
       return;
     }
-    if (paid < widget.total) {
+    final total = _totalFromCart;
+    if (paid < total) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Jumlah pembayaran kurang')));
       return;
     }
     setState(() {
-      _change = paid - widget.total;
+      _change = paid - total;
     });
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Pembayaran Diterima'),
-        content: Text('Total: Rp ${widget.total.toStringAsFixed(0)}\nDibayar: Rp ${paid.toStringAsFixed(0)}\nKembali: Rp ${_change!.toStringAsFixed(0)}'),
+        content: Text('Total: Rp ${total.toStringAsFixed(0)}\nDibayar: Rp ${paid.toStringAsFixed(0)}\nKembali: Rp ${_change!.toStringAsFixed(0)}'),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK')),
         ],
@@ -42,6 +53,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final total = _totalFromCart;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Pembayaran')),
       body: Padding(
@@ -49,7 +62,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Total Transaksi:\nRp ${widget.total.toStringAsFixed(0)}', style: const TextStyle(fontSize: 18)),
+            const Text('Daftar Pesanan:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            // list ordered products
+            if (widget.cart.isEmpty)
+              const Text('Belum ada produk dipesan.'),
+            if (widget.cart.isNotEmpty)
+              SizedBox(
+                height: 160,
+                child: ListView(
+                  children: widget.cart.entries.map((e) {
+                    final p = demoProducts.firstWhere((prod) => prod.id == e.key, orElse: () => Product(id: e.key, name: 'Unknown', image: '', description: '', price: 0.0));
+                    final subtotal = p.price * e.value;
+                    return ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(p.name),
+                      subtitle: Text('Qty: ${e.value}  •  Rp ${p.price.toStringAsFixed(0)}'),
+                      trailing: Text('Rp ${subtotal.toStringAsFixed(0)}'),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+            const SizedBox(height: 8),
+            Text('Total Transaksi:\nRp ${total.toStringAsFixed(0)}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 16),
             TextField(
               controller: _payController,

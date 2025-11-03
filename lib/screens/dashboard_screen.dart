@@ -80,15 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cannot open WhatsApp. Open manually: https://wa.me/$cleanedNumber')));
   }
 
-  Future<void> _openMaps(String query) async {
-    final encoded = Uri.encodeComponent(query);
-    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$encoded');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
-    }
-  }
+ 
 
   void _onMenuSelected(String value) async {
     switch (value) {
@@ -226,7 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onTap: () {
           // open payment form and pass a reset callback to clear cart
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => PaymentScreen(
-                total: _total,
+                cart: Map<String,int>.from(_cart),
                 onReset: () {
                   setState(() {
                     _cart.clear();
