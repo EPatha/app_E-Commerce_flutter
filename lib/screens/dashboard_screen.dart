@@ -100,7 +100,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _sendSms('+6281225723525');
         break;
       case 'maps':
-        _openMaps('Warung Ajib, Bandungrejo, Mranggen, Demak');
+        // Open the same short maps link as the AppBar icon
+        try {
+          final uri = Uri.parse('https://maps.app.goo.gl/kY9gDUAED5oakMrB8');
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
+          }
+        } catch (_) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
+        }
         break;
       case 'update':
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateUserScreen()));
