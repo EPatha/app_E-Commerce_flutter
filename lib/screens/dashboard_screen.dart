@@ -133,7 +133,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: const Icon(Icons.call),
             tooltip: 'Call Center (WhatsApp)',
             onPressed: () async {
-              await _openWhatsAppNumber('6282114488418');
+              // Make this phone icon perform a direct call to the seller number
+              await _openDialer('+6281225723525');
             },
           ),
           // Quick access button to open WhatsApp chat (seller number)
