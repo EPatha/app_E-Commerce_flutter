@@ -29,18 +29,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _openDialer(String phone) async {
-    final uri = Uri.parse('tel:$phone');
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-        return;
+    // Normalize phone to digits-only for tel: URIs
+    final cleaned = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    final candidates = <Uri>[
+      Uri.parse('tel:$cleaned'),
+      Uri.parse('tel:+$cleaned'),
+    ];
+
+    for (final uri in candidates) {
+      try {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+          return;
+        }
+      } catch (_) {
+        // ignore and try next
       }
-    } catch (_) {
-      // fallthrough to fallback
     }
 
-    // Fallback: show SnackBar with phone number so user can call manually
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cannot open dialer. Please call manually: $phone')));
+    // Final fallback: show SnackBar with phone number so user can dial manually
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cannot open dialer. Please call manually: $cleaned')));
   }
 
   Future<void> _sendSms(String phone) async {
