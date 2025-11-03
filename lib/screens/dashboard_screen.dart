@@ -30,11 +30,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _openDialer(String phone) async {
     final uri = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open dialer')));
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        return;
+      }
+    } catch (_) {
+      // fallthrough to fallback
     }
+
+    // Fallback: show SnackBar with phone number so user can call manually
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cannot open dialer. Please call manually: $phone')));
   }
 
   Future<void> _sendSms(String phone) async {
@@ -79,7 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _onMenuSelected(String value) async {
     switch (value) {
       case 'call':
-        _openDialer('+628123456789');
+        _openDialer('+6281225723525');
         break;
       case 'sms':
         // SMS Center should open WhatsApp to the seller number per request
