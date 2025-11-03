@@ -38,12 +38,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _sendSms(String phone) async {
-    final uri = Uri.parse('sms:$phone');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open SMS')));
+    // Use the generic open WhatsApp helper which tries the app scheme first and falls back to web.
+    final cleaned = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    await _openWhatsAppNumber(cleaned);
+  }
+
+  Future<void> _openWhatsAppNumber(String cleanedNumber) async {
+    // Try app scheme first
+    final schemeUri = Uri.parse('whatsapp://send?phone=$cleanedNumber');
+    try {
+      if (await canLaunchUrl(schemeUri)) {
+        await launchUrl(schemeUri);
+        return;
+      }
+    } catch (_) {
+      // ignore and fallback to web URL
     }
+
+    // Fallback to web (wa.me)
+    final webUri = Uri.parse('https://wa.me/$cleanedNumber');
+    if (await canLaunchUrl(webUri)) {
+      await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    // Final fallback: show SnackBar with URL so user can copy/open manually
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cannot open WhatsApp. Open manually: https://wa.me/$cleanedNumber')));
   }
 
   Future<void> _openMaps(String query) async {
@@ -62,7 +82,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _openDialer('+628123456789');
         break;
       case 'sms':
-        _sendSms('+628123456789');
+        // SMS Center should open WhatsApp to the seller number per request
+        _sendSms('+6281225723525');
         break;
       case 'maps':
         _openMaps('Warung Ajib, Bandungrejo, Mranggen, Demak');
@@ -98,12 +119,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: const Icon(Icons.call),
             tooltip: 'Call Center (WhatsApp)',
             onPressed: () async {
-              final uri = Uri.parse('https://wa.me/6282114488418');
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open WhatsApp')));
-              }
+              await _openWhatsAppNumber('6282114488418');
             },
           ),
           // Quick access button to open WhatsApp chat
@@ -111,13 +127,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: const Icon(Icons.chat, color: Colors.green),
             tooltip: 'Chat via WhatsApp',
             onPressed: () async {
-              // Use wa.me link with country code (no plus signs or dashes)
-              final uri = Uri.parse('https://wa.me/6282114488418');
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open WhatsApp')));
-              }
+              await _openWhatsAppNumber('6282114488418');
             },
           ),
           // Quick access button to update username/password
