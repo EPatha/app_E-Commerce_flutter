@@ -136,12 +136,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               await _openWhatsAppNumber('6282114488418');
             },
           ),
-          // Quick access button to open WhatsApp chat
+          // Quick access button to open WhatsApp chat (seller number)
           IconButton(
             icon: const Icon(Icons.chat, color: Colors.green),
             tooltip: 'Chat via WhatsApp',
             onPressed: () async {
-              await _openWhatsAppNumber('6282114488418');
+              await _openWhatsAppNumber('6281225723525');
             },
           ),
           // Quick access button to update username/password
