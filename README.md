@@ -73,7 +73,7 @@ Prinsip desain yang dipakai:
 
 ## Diagram Use Case
 
-Gunakan PlantUML untuk merender diagram ini. Salin blok berikut ke file `.puml` atau di extension PlantUML VSCode.
+File PlantUML: [`docs/use_case_diagram.puml`](docs/use_case_diagram.puml)
 
 ```plantuml
 @startuml
@@ -98,7 +98,7 @@ Catatan: untuk merender PlantUML Anda dapat menggunakan VS Code PlantUML extensi
 
 ## Diagram Class (PlantUML)
 
-Berikut teks PlantUML untuk class diagram sederhana.
+File PlantUML: [`docs/class_diagram.puml`](docs/class_diagram.puml)
 
 ```plantuml
 @startuml
@@ -127,6 +127,8 @@ LoginScreen ..> UpdateUserScreen : can navigate
 ---
 
 ## Diagram Aktivitas (Activity Diagram)
+
+File PlantUML: [`docs/activity_diagram.puml`](docs/activity_diagram.puml)
 
 Flow Pembelian (Use case: Bayar)
 
