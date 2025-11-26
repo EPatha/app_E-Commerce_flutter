@@ -48,6 +48,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     // Final fallback: show SnackBar with phone number so user can dial manually
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cannot open dialer. Please call manually: $cleaned')));
   }
 
@@ -77,6 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     // Final fallback: show SnackBar with URL so user can copy/open manually
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cannot open WhatsApp. Open manually: https://wa.me/$cleanedNumber')));
   }
 
@@ -95,13 +97,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // Open the same short maps link as the AppBar icon
         try {
           final uri = Uri.parse('https://maps.app.goo.gl/kY9gDUAED5oakMrB8');
-          if (await canLaunchUrl(uri)) {
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
-          }
+              final messenger = ScaffoldMessenger.of(context);
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } else {
+                if (mounted) messenger.showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
+              }
         } catch (_) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
+              if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
         }
         break;
       case 'update':
@@ -123,11 +126,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             tooltip: 'Open Maps',
             onPressed: () async {
               final uri = Uri.parse('https://maps.app.goo.gl/kY9gDUAED5oakMrB8');
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
-              }
+                  final messenger = ScaffoldMessenger.of(context);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  } else {
+                    if (!mounted) return;
+                    messenger.showSnackBar(const SnackBar(content: Text('Cannot open Maps')));
+                  }
             },
           ),
           // Quick access button to open WhatsApp chat/call to seller
@@ -195,13 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       GestureDetector(
-                        onTap: () async {
-                          // open detail and wait for possible add-to-cart result
-                          final result = await Navigator.of(context).pushNamed(ProductDetailScreen.routeName, arguments: p);
-                          if (result is Product) {
-                            _addProduct(result);
-                          }
-                        },
+                        onTap: () => _openProductDetail(p),
                         child: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(height: 4),
@@ -240,5 +239,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _openProductDetail(Product p) async {
+    final navigator = Navigator.of(context);
+    final result = await navigator.push(MaterialPageRoute(builder: (_) => ProductDetailScreen(product: p)));
+    if (result is Product) {
+      _addProduct(result);
+    }
   }
 }
