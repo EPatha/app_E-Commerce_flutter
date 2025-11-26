@@ -1,0 +1,46 @@
+@startuml
+class Product {
+  - String id
+  - String name
+  - String image
+  - String description
+  - double price
+  + Product(id,name,image,description,price)
+}
+
+class DashboardScreen {
+  - Map<String,int> _cart
+  - double _total
+  + _addProduct(Product, qty)
+  + _openDialer(phone)
+  + _openWhatsAppNumber(number)
+  + _openProductDetail(Product)
+}
+
+class ProductDetailScreen {
+  + Product product
+  + build()
+}
+
+class PaymentScreen {
+  + Map<String,int> cart
+  + VoidCallback onReset
+  - double _totalFromCart
+  + _processPayment()
+}
+
+class LoginScreen {
+  + _login()
+  + _createAccount()
+}
+
+class UpdateUserScreen {
+  + _updateUser()
+  + _logout()
+}
+
+Product <|-- ProductDetailScreen : uses
+DashboardScreen "1" *-- "*" Product : shows
+DashboardScreen o-- PaymentScreen : passes cart
+LoginScreen ..> UpdateUserScreen : can navigate
+@enduml
