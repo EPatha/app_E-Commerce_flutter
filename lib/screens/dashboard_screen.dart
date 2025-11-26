@@ -274,6 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 );
                                 if (result == true) _loadProducts();
                               } else if (value == 'delete') {
+                                final messenger = ScaffoldMessenger.of(context);
                                 final confirm = await showDialog<bool>(
                                   context: context,
                                   builder: (_) => AlertDialog(
@@ -291,7 +292,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 if (confirm == true) {
                                   await DatabaseHelper.instance.deleteProduct(p.id);
                                   _loadProducts();
-                                  final messenger = ScaffoldMessenger.of(context);
                                   if (mounted) {
                                     messenger.showSnackBar(
                                       const SnackBar(content: Text('Produk berhasil dihapus')),
