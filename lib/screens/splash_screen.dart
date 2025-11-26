@@ -25,8 +25,10 @@ class _SplashScreenState extends State<SplashScreen> {
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     final hasUser = prefs.containsKey('username');
     if (isLoggedIn || hasUser) {
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(DashboardScreen.routeName);
     } else {
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
     }
   }

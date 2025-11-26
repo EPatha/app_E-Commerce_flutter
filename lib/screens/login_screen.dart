@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         final Map<String, dynamic> map = json.decode(accountsJson);
         if (map.containsKey(current)) {
+          if (!mounted) return;
           setState(() {
             _userController.text = current;
             _passController.text = map[current].toString();
@@ -47,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final u = _userController.text.trim();
     final p = _passController.text.trim();
     if (u.isEmpty || p.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username and password required')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username and password required')));
       return;
     }
     // Persist into accounts map so multiple accounts are supported
@@ -60,11 +61,12 @@ class _LoginScreenState extends State<LoginScreen> {
       } catch (_) {}
     }
     if (accounts.containsKey(u)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username already exists')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Username already exists')));
       return;
     }
     accounts[u] = p;
     await prefs.setString('accounts', json.encode(accounts));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account created')));
   }
 
@@ -74,26 +76,27 @@ class _LoginScreenState extends State<LoginScreen> {
     final u = _userController.text.trim();
     final p = _passController.text.trim();
     if (accountsJson == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No account found. Please create one.')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No account found. Please create one.')));
       return;
     }
     try {
       final Map<String, dynamic> map = json.decode(accountsJson);
       final stored = map[u];
       if (stored == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No such username')));
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No such username')));
         return;
       }
       if (p == stored.toString()) {
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('currentUser', u);
         await prefs.setString('username', u); // keep compatibility
+        if (!mounted) return;
         Navigator.of(context).pushReplacementNamed(DashboardScreen.routeName);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid credentials')));
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid credentials')));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login error')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login error')));
     }
   }
 

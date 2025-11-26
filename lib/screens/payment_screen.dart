@@ -103,6 +103,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 if (widget.onReset != null)
                   TextButton(
                     onPressed: () async {
+                      final navigator = Navigator.of(context);
                       final confirm = await showDialog<bool>(
                         context: context,
                         builder: (_) => AlertDialog(
@@ -115,8 +116,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                       );
                       if (confirm == true) {
+                        // Always trigger the reset callback; pop using captured navigator
                         widget.onReset!();
-                        Navigator.of(context).pop();
+                        navigator.pop();
                       }
                     },
                     child: const Text('Reset', style: TextStyle(color: Colors.red)),

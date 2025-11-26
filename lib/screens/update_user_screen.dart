@@ -74,8 +74,10 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
     await prefs.setString('accounts', json.encode(accounts));
     await prefs.setString('currentUser', u);
     await prefs.setBool('isLoggedIn', true);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Update berhasil')));
-    Navigator.of(context).pop();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Update berhasil')));
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _logout() async {
@@ -83,7 +85,7 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
     // Only clear the logged-in flag and currentUser; keep accounts
     await prefs.setBool('isLoggedIn', false);
     await prefs.remove('currentUser');
-    Navigator.of(context).pushNamedAndRemoveUntil(LoginScreen.routeName, (route) => false);
+    if (mounted) Navigator.of(context).pushNamedAndRemoveUntil(LoginScreen.routeName, (route) => false);
   }
 
   @override
