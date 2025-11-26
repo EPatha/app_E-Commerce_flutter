@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/product.dart';
+import '../helpers/database_helper.dart';
 import 'product_detail_screen.dart';
 import 'payment_screen.dart';
 import 'update_user_screen.dart';
+import 'add_edit_product_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -15,9 +17,27 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final Map<String, int> _cart = {};
+  List<Product> _products = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  Future<void> _loadProducts() async {
+    setState(() => _isLoading = true);
+    await DatabaseHelper.instance.seedInitialData();
+    final products = await DatabaseHelper.instance.readAllProducts();
+    setState(() {
+      _products = products;
+      _isLoading = false;
+    });
+  }
 
   double get _total => _cart.entries.fold(0.0, (prev, e) {
-        final p = demoProducts.firstWhere((prod) => prod.id == e.key);
+        final p = _products.firstWhere((prod) => prod.id == e.key, orElse: () => Product(id: '', name: '', image: '', description: '', price: 0));
         return prev + p.price * e.value;
       });
 
@@ -110,6 +130,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'update':
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UpdateUserScreen()));
         break;
+      case 'add_product':
+        final result = await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const AddEditProductScreen()),
+        );
+        if (result == true) _loadProducts();
+        break;
       // no-op for logout here; logout available via Update User screen
     }
   }
@@ -165,11 +191,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
               PopupMenuItem(value: 'sms', child: Text('SMS Center')),
               PopupMenuItem(value: 'maps', child: Text('Lokasi/Maps')),
               PopupMenuItem(value: 'update', child: Text('Update User & Password')),
+              PopupMenuItem(value: 'add_product', child: Row(
+                children: [
+                  Icon(Icons.add, size: 20),
+                  SizedBox(width: 8),
+                  Text('Tambah Produk'),
+                ],
+              )),
             ],
           )
         ],
       ),
-      body: GridView.builder(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _products.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Belum ada produk'),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          final result = await Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const AddEditProductScreen()),
+                          );
+                          if (result == true) _loadProducts();
+                        },
+                        icon: const Icon(Icons.add),
+                        label: const Text('Tambah Produk'),
+                      ),
+                    ],
+                  ),
+                )
+              : GridView.builder(
         padding: const EdgeInsets.all(8),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -177,9 +232,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisSpacing: 8,
           mainAxisSpacing: 8,
         ),
-        itemCount: demoProducts.length,
+        itemCount: _products.length,
         itemBuilder: (context, index) {
-          final p = demoProducts[index];
+          final p = _products[index];
           return Card(
             elevation: 2,
             child: Column(
@@ -204,7 +259,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(height: 4),
-                      Text('Rp ${p.price.toStringAsFixed(0)}', style: const TextStyle(color: Colors.green)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Rp ${p.price.toStringAsFixed(0)}', style: const TextStyle(color: Colors.green)),
+                          PopupMenuButton<String>(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.more_vert, size: 20),
+                            onSelected: (value) async {
+                              if (value == 'edit') {
+                                final result = await Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => AddEditProductScreen(product: p)),
+                                );
+                                if (result == true) _loadProducts();
+                              } else if (value == 'delete') {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    title: const Text('Hapus Produk'),
+                                    content: Text('Yakin ingin menghapus ${p.name}?'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  await DatabaseHelper.instance.deleteProduct(p.id);
+                                  _loadProducts();
+                                  final messenger = ScaffoldMessenger.of(context);
+                                  if (mounted) {
+                                    messenger.showSnackBar(
+                                      const SnackBar(content: Text('Produk berhasil dihapus')),
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(value: 'edit', child: Text('Edit')),
+                              PopupMenuItem(value: 'delete', child: Text('Hapus', style: TextStyle(color: Colors.red))),
+                            ],
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 )

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import '../helpers/database_helper.dart';
 
 class PaymentScreen extends StatefulWidget {
   static const routeName = '/payment';
@@ -14,11 +15,25 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   final _payController = TextEditingController();
   double? _change;
+  List<Product> _products = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  Future<void> _loadProducts() async {
+    final products = await DatabaseHelper.instance.readAllProducts();
+    setState(() {
+      _products = products;
+    });
+  }
 
   double get _totalFromCart {
     double t = 0.0;
     widget.cart.forEach((id, qty) {
-      final p = demoProducts.firstWhere((prod) => prod.id == id, orElse: () => Product(id: id, name: 'Unknown', image: '', description: '', price: 0.0));
+      final p = _products.firstWhere((prod) => prod.id == id, orElse: () => Product(id: id, name: 'Unknown', image: '', description: '', price: 0.0));
       t += p.price * qty;
     });
     return t;
@@ -72,7 +87,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 height: 160,
                 child: ListView(
                   children: widget.cart.entries.map((e) {
-                    final p = demoProducts.firstWhere((prod) => prod.id == e.key, orElse: () => Product(id: e.key, name: 'Unknown', image: '', description: '', price: 0.0));
+                    final p = _products.firstWhere((prod) => prod.id == e.key, orElse: () => Product(id: e.key, name: 'Unknown', image: '', description: '', price: 0.0));
                     final subtotal = p.price * e.value;
                     return ListTile(
                       dense: true,

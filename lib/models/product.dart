@@ -12,49 +12,43 @@ class Product {
     required this.description,
     required this.price,
   });
-}
 
-final List<Product> demoProducts = [
-  Product(
-    id: '1',
-    name: 'Sate',
-    image: 'assets/images/Sate.jpg',
-    description: 'Sate enak, bumbu kacang khas.',
-    price: 25000,
-  ),
-  Product(
-    id: '2',
-    name: 'Soto Ayam Kuning',
-    image: 'assets/images/Soto-Ayam-Kuning.jpg',
-    description: 'Soto hangat dengan kuah kuning.',
-    price: 20000,
-  ),
-  Product(
-    id: '3',
-    name: 'Bubur Ayam',
-    image: 'assets/images/Bubur-Ayam.jpg',
-    description: 'Bubur lembut dengan topping ayam.',
-    price: 15000,
-  ),
-  Product(
-    id: '4',
-    name: 'Es Teh Ajib Jumbo',
-    image: 'assets/images/Estehajib-Jumbo.jpg',
-    description: 'Segar, manis, porsi jumbo.',
-    price: 8000,
-  ),
-  Product(
-    id: '5',
-    name: 'Steak Enak',
-    image: 'assets/images/Steak-enak.jpg',
-    description: 'Steak medium rare dengan saus spesial.',
-    price: 75000,
-  ),
-  Product(
-    id: '6',
-    name: 'Lumpia',
-    image: 'assets/images/Lumpia.jpg',
-    description: 'Lumpia renyah dengan isi sayur dan daging, cocok untuk cemilan.',
-    price: 12000,
-  ),
-];
+  // Convert Product to Map for SQLite
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id.isEmpty ? null : int.parse(id),
+      'name': name,
+      'image': image,
+      'description': description,
+      'price': price,
+    };
+  }
+
+  // Create Product from Map (SQLite)
+  factory Product.fromMap(Map<String, dynamic> map) {
+    return Product(
+      id: map['id'].toString(),
+      name: map['name'] as String,
+      image: map['image'] as String,
+      description: map['description'] as String,
+      price: (map['price'] as num).toDouble(),
+    );
+  }
+
+  // Copy method for updating product
+  Product copy({
+    String? id,
+    String? name,
+    String? image,
+    String? description,
+    double? price,
+  }) {
+    return Product(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      image: image ?? this.image,
+      description: description ?? this.description,
+      price: price ?? this.price,
+    );
+  }
+}

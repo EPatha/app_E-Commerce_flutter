@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.0.15
   url_launcher: ^6.1.7
+  sqflite: ^2.2.8+4
+  path: ^1.8.3
 
 dev_dependencies:
   flutter_test:
