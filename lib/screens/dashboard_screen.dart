@@ -268,7 +268,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             icon: const Icon(Icons.more_vert, size: 20),
                             onSelected: (value) async {
                               if (value == 'edit') {
-                                final result = await Navigator.of(context).push(
+                                final navigator = Navigator.of(context);
+                                final result = await navigator.push(
                                   MaterialPageRoute(builder: (_) => AddEditProductScreen(product: p)),
                                 );
                                 if (result == true) _loadProducts();
